@@ -9,16 +9,11 @@ import model.model as module_arch
 from parse_config import ConfigParser
 from trainer import Trainer
 from utils import prepare_device
+from utils import setup_logger, set_random_seed, collect_env_info
+from utils import clean_cfg, get_cfg_default
 
 
-# fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
-
-def main(config):
+def main(args):
     logger = config.get_logger('train')
 
     # setup data_loader instances
@@ -55,19 +50,33 @@ def main(config):
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default: None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default=None, type=str,
-                      help='indices of GPUs to enable (default: all)')
+    parser = argparse.ArgumentParser(description='PyTorch Template')
+    
+    parser.add_argument('-dr', "--dataset_root",
+                        type=str, default="", help="root path to dataset")
+    parser.add_argument('-od', "--output_dir",
+                        type=str, default="", help="output directory")
 
-    # custom cli options to modify configuration from default values given in json file.
-    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
-    options = [
-        CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
-    ]
-    config = ConfigParser.from_args(args, options)
-    main(config)
+    parser.add_argument('-tr', "--trainer",
+                        type=str, default="",
+                        help="name of trainer")
+    parser.add_argument('-mc', "--method_config_file",
+                        type=str, default="",
+                        help="path to config file for methods")
+    parser.add_argument('-dc', "--dataset_config_file",
+                        type=str, default="",
+                        help="path to config file for datasets")
+    parser.add_argument('-sd', "--seed",
+                        type=int, default=-1,
+                        help="only positive value enables a fixed seed, such as 42")
+    parser.add_argument('-dv', '--device',
+                        type=str, default=None,
+                        help='indices of GPUs to enable (default: all)')
+
+    parser.add_argument('-rs', "--resume",
+                        type=str, default="",
+                        help="checkpoint directory (from which the training resumes)")
+
+    args = parser.parse_args()
+
+    main(args)
