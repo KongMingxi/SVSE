@@ -15,7 +15,11 @@ _C.RESUME = ""
 # Set seed to negative value to randomize everything
 # Set seed to positive value to use a fixed seed
 _C.SEED = -1
+# Set GPU
+# Set N_GPU_USE to 0 if there is no GPU
+# Set N_GPU_USE to positive value to use GPUs
 _C.USE_CUDA = True
+_C.N_GPU_USE = 1
 # Print detailed information
 # E.g. trainer, dataset, and backbone
 _C.VERBOSE = True
@@ -65,6 +69,7 @@ _C.DATASET = CN()
 # Directory where datasets are stored
 _C.DATASET.ROOT = ""
 _C.DATASET.NAME = ""
+_C.DATASET.NUM_CLASSES = 0
 # Percentage of validation data (only used for SSL datasets)
 # Set to 0 if do not want to use val data
 _C.DATASET.VAL_PERCENT = 0.2
@@ -183,8 +188,11 @@ _C.TRAINER = CN()
 _C.TRAINER.NAME = ""
 
 ######
-# Specific hyperparameters for other methods
+# Specific hyperparameters for methods
 ######
+# Baseline
+_C.TRAINER.BASELINE = CN()
+_C.TRAINER.BASELINE.ONLY = True
 # MCD
 _C.TRAINER.MCD = CN()
 _C.TRAINER.MCD.N_STEP_F = 4  # number of steps to train F

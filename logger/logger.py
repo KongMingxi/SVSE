@@ -2,6 +2,14 @@ import logging
 import logging.config
 from pathlib import Path
 from utils import read_json
+import wandb
+
+
+def train_logger(epoch, loss, auc_dict):
+    # Where the magic happens
+    log_dict = {**{"epoch": epoch, "loss": loss}, **auc_dict}
+    wandb.log(log_dict)
+    print(f"Loss after " + str(example_ct).zfill(5) + f" examples: {loss:.3f}")
 
 
 def setup_logging(save_dir, log_config='logger/logger_config.json', default_level=logging.INFO):

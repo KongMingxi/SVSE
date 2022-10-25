@@ -2,6 +2,57 @@ import torch.nn as nn
 import torch.nn.functional as F
 from base import BaseModel
 
+from .reset import resnet18, resnet50
+
+
+def build_model_training(cfg):
+
+    # configs for network
+    if cfg.TRAINER.BASELINE.ONLY:
+        model = BaselineModel(cfg)
+
+    return model
+
+
+class BaselineModel(BaseModel):
+
+    def __init__(self, cfg):
+        super().__init__()
+        
+        # set up backbone
+        if cfg.MODEL.BACKBONE.NAME == 'resnet18':
+            self.backbone = resnet18(x)
+        elif cfg.MODEL.BACKBONE.NAME == 'resnet50':
+            self.backbone = resnet50(x)
+        else:
+            print('A model name is required')
+
+        fdim = self.backbone.out_features
+        self._fdim = fdim
+
+        # set up classifier
+        num_classes = cfg.DATASET.NUM_CLASSES
+                
+        self.classifier = None
+        if num_classes > 0:
+            self.classifier = nn.Linear(fdim, num_classes)
+
+    @property
+    def fdim(self):
+        return self._fdim
+
+    def forward(self, x, return_feature=False):
+        f = self.backbone(x)
+
+        y_logit = classifier(f)
+
+        return y_logit
+
+    def return_feature():
+        f = self.backbone(x)
+
+        return f
+
 
 class MnistModel(BaseModel):
     def __init__(self, num_classes=10):

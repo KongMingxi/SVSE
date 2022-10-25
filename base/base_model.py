@@ -7,6 +7,9 @@ class BaseModel(nn.Module):
     """
     Base class for all models
     """
+    def __init__(self):
+        super().__init__()
+    
     @abstractmethod
     def forward(self, *inputs):
         """
@@ -15,6 +18,13 @@ class BaseModel(nn.Module):
         :return: Model output
         """
         raise NotImplementedError
+    
+    @property
+    def out_features(self):
+        """Output feature dimension."""
+        if self.__dict__.get("_out_features") is None:
+            return None
+        return self._out_features
 
     def __str__(self):
         """

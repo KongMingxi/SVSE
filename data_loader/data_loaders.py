@@ -1,5 +1,32 @@
+import torch
 from torchvision import datasets, transforms
-from base import BaseDataLoader
+from sklearn.metrics import roc_auc_score, accuracy_score
+import sklearn, sklearn.model_selection
+
+import torchxrayvision as xrv
+from base import BaseDataLoader, CxrDataset
+
+
+def build_data_loader_training(cfg):
+    # Dataset split
+    gss = sklearn.model_selection.GroupShuffleSplit(train_size=0.8, test_size=0.2, random_state=cfg.seed)
+    train_inds, test_inds = next(gss.split(X=range(len(dataset)), groups=dataset.csv.patientid))
+    train_dataset = xrv.datasets.SubsetDataset(dataset, train_inds)
+    valid_dataset = xrv.datasets.SubsetDataset(dataset, test_inds)
+
+    # Dataloader
+    train_loader = torch.utils.data.DataLoader(train_dataset,
+                                               batch_size=cfg.batch_size,
+                                               shuffle=cfg.shuffle,
+                                               num_workers=cfg.threads, 
+                                               pin_memory=cfg.cuda)
+    valid_loader = torch.utils.data.DataLoader(valid_dataset,
+                                               batch_size=cfg.batch_size,
+                                               shuffle=cfg.shuffle,
+                                               num_workers=cfg.threads, 
+                                               pin_memory=cfg.cuda)
+
+    return train_loader, valid_loader
 
 
 class MnistDataLoader(BaseDataLoader):
@@ -30,43 +57,7 @@ class MnistDataLoader(BaseDataLoader):
         super().__init__(self.dataset, batch_size, shuffle, validation_split, num_workers)
 
 
-class Dataset():
-    def __init__(self):
-        pass
-
-    def totals(self):
-        counts = [dict(collections.Counter(items[~np.isnan(items)]).most_common()) for items in self.labels.T]
-        return dict(zip(self.pathologies, counts))
-
-    def __repr__(self):
-        pprint.pprint(self.totals())
-        return self.string()
-
-    def check_paths_exist(self):
-        if not os.path.isdir(self.imgpath):
-            raise Exception("imgpath must be a directory")
-        if not os.path.isfile(self.csvpath):
-            raise Exception("csvpath must be a file")
-
-    def limit_to_selected_views(self, views):
-        """This function is called by subclasses to filter the
-        images by view based on the values in .csv['view']
-        """
-        if type(views) is not list:
-            views = [views]
-        if '*' in views:
-            # if you have the wildcard, the rest are irrelevant
-            views = ["*"]
-        self.views = views
-
-        # missing data is unknown
-        self.csv.view.fillna("UNKNOWN", inplace=True)
-
-        if "*" not in views:
-            self.csv = self.csv[self.csv["view"].isin(self.views)]  # Select the view
-
-
-class NIH_Google_SciRep_Dataset(Dataset):
+class NIH_Google_SciRep_Dataset(CxrDataset):
     """A relabelling of a subset of images from the NIH dataset.  The data tables should
     be applied against an NIH download.  A test and validation split are provided in the
     original.  They are combined here, but one or the other can be used by providing
