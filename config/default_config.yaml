@@ -5,6 +5,8 @@
 
 # Directory to save the output files (like log.txt and model weights)
 output_dir: "./output"
+# Directory to save the output files (like log.txt and model weights)
+ckpt_dir: "./output/"
 # Path to a directory where the files were saved previously
 resume: False
 # Set seed to negative value to randomize everything
@@ -26,7 +28,7 @@ exp_desc_notes: 'date_'
 defaults:
   - _self_
   - inputs: default_inputs
-  - dataset: default_dataset
-  - model: baseline_model
-  - trainer: baseline_trainer
+  - datasets: default_datasets
+  - models: baseline_models
+  - trainers: baseline_trainers
 

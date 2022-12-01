@@ -10,7 +10,7 @@ init_weights: ""
 ###########################
 # Optimization
 ###########################
-optim: "adam"
+optim_name: "adam"
 optim_lr: 0.0001
 optim_weight_decay: 5e-4
 optim_momentum: 0.9
